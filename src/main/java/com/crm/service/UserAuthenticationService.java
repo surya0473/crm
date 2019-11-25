@@ -58,7 +58,7 @@ public class UserAuthenticationService implements UserDetailsService {
 
 	public UserEntity save(UserBean user) throws Exception {
 		UserEntity newUser = new UserEntity();
-		//newUser.setUsername(userIdtil.generateUniqueId());
+		// newUser.setUsername(userIdtil.generateUniqueId());
 		newUser.setUsername(user.getUsername());
 		newUser.setPassword(bcryptEncoder.encode(user.getPassword()));
 		newUser.setNetworkName(user.getNetworkName());
@@ -114,10 +114,14 @@ public class UserAuthenticationService implements UserDetailsService {
 				.toString();
 		return password;
 	}
-	
+
 	public static void main(String[] args) {
-		PasswordEncoder bcryptEncoder1=new BCryptPasswordEncoder();
+		PasswordEncoder bcryptEncoder1 = new BCryptPasswordEncoder();
 		System.out.println(bcryptEncoder1.encode("surya@123"));
+	}
+
+	public UserEntity getUserInfo(String username) throws UserException {
+		return userDao.getUser(username);
 	}
 
 }

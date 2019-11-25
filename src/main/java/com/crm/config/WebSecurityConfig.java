@@ -15,6 +15,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.crm.exception.RestAccessDeniedHandler;
 
@@ -49,42 +50,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	}
 
 	@Override
-	protected void configure(HttpSecurity http) throws Exception {
-
-		// Disable CSRF (cross site request forgery)
-		http.cors().and().csrf().disable();
-
-		// No session will be created or used by spring security
-		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-
-		// Entry points
-		http.authorizeRequests().antMatchers("/swagger-ui.html","/forgotpassword" ,"/register","/changepassword","/authenticate").permitAll()
-				// Disallow everything else..
-				.anyRequest().authenticated();
-
-		// If a user try to access a resource without having enough permissions
-		http.exceptionHandling().accessDeniedPage("/login");
-
-		// Apply JWT
-		// http.apply(jwtRequestFilter);
-
-		// Optional, if you want to test the API from a browser
-		// http.httpBasic();
+	protected void configure(HttpSecurity httpSecurity) throws Exception {
+		httpSecurity.csrf().disable().authorizeRequests().antMatchers("/authenticate").permitAll().anyRequest()
+				.authenticated().and().exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint).and()
+				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+		httpSecurity.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 	}
-
-	@Override
-	public void configure(WebSecurity web) throws Exception {
-		// Allow eureka client to be accessed without authentication
-		web.ignoring().antMatchers("/*/")//
-				.antMatchers("/eureka/**")//
-				.antMatchers(HttpMethod.OPTIONS, "/**"); // Request type options should be allowed.
-	}
-	
-	
-	/*
-	 * @Bean RestAccessDeniedHandler accessDeniedHandler() { return new
-	 * RestAccessDeniedHandler(); }
-	 */
-
 
 }

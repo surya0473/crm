@@ -29,7 +29,7 @@ public class UserDaoImpl extends DaoUtil implements UserDao {
 		UserEntity produObj = null;
 		Session session = null;
 		try {
-			session = sessionFactory.getCurrentSession();
+			session = sessionFactory.openSession();
 			Query query = session.createQuery(QueryConstants.GET_USER_BY_USERNAME);
 			query.setString(QueryConstants.username, username);
 			produObj = (UserEntity) query.uniqueResult();
@@ -44,7 +44,7 @@ public class UserDaoImpl extends DaoUtil implements UserDao {
 	public UserEntity saveUser(UserEntity user) throws UserException {
 		Session session = null;
 		try {
-			session = sessionFactory.getCurrentSession();
+			session = sessionFactory.openSession();
 			Long id = (Long) session.save(user);
 			if (id > 0) {
 				user.setId(id);
@@ -64,7 +64,7 @@ public class UserDaoImpl extends DaoUtil implements UserDao {
 		String lastUserId = null;
 		Session session = null;
 		try {
-			session = sessionFactory.getCurrentSession();
+			session = sessionFactory.openSession();
 			Query query = session.createQuery("from UserEntity u order by u.id desc");
 			@SuppressWarnings("unchecked")
 			List<UserEntity> userList = (List<UserEntity>) query.list();
@@ -86,6 +86,24 @@ public class UserDaoImpl extends DaoUtil implements UserDao {
 
 	public void saveEmail(Email email) throws Exception {
 		saveAnyEntity(email);
+	}
+
+	@Override
+	public UserEntity getUser(String username) {
+		UserEntity produObj = null;
+		Session session = null;
+		try {
+			session = sessionFactory.openSession();
+			Query query = session.createQuery(QueryConstants.GET_USER_BY_USERNAME);
+			query.setString(QueryConstants.username, username);
+			produObj = (UserEntity) query.uniqueResult();
+		} catch (Exception ex) {
+			logger.error("error while findByUsername:", ex);
+			throw ex;
+		} finally {
+			session.close();
+		}
+		return produObj;
 	}
 
 }

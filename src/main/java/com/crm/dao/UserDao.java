@@ -14,4 +14,5 @@ public interface UserDao {
 	public void changePassword(UserEntity user) throws Exception;
 
 	public void saveEmail(Email email) throws Exception;
+	public UserEntity getUser(String username);
 }

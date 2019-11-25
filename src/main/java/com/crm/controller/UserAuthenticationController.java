@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.crm.bean.JwtRequestBean;
@@ -47,7 +48,7 @@ public class UserAuthenticationController {
 	private String message;
 
 	@RequestMapping(value = "/authenticate", method = RequestMethod.POST)
-	public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequestBean authenticationRequest)
+	public ResponseEntity<ClientRespBean> createAuthenticationToken(@RequestBody JwtRequestBean authenticationRequest)
 			throws Exception {
 		String token = null;
 		logger.info(
@@ -99,11 +100,11 @@ public class UserAuthenticationController {
 		}
 		return payload.buildRetunResp(new ClientRespBean(status, message, null));
 	}
-	
+
 	@RequestMapping(value = "/forgotpassword", method = RequestMethod.GET)
 	public ResponseEntity<?> forgotPassword() {
 		try {
-			//userDetailsService.changePassword(user);
+			// userDetailsService.changePassword(user);
 			status = MessageConstants.SUCCESS;
 			message = MessageConstants.DETAILS_CHANGED_SUCCESSFULLY;
 		} catch (Exception e) {
@@ -111,6 +112,21 @@ public class UserAuthenticationController {
 			message = e.getMessage();
 		}
 		return payload.buildRetunResp(new ClientRespBean(status, message, null));
+	}
+
+	@RequestMapping(value = "/getUser", method = RequestMethod.GET)
+	public ResponseEntity<?> getUserInfo(@RequestParam String username) {
+		UserEntity user = null;
+		try {
+			user = userDetailsService.getUserInfo(username);
+			user.setPassword("");
+			status = MessageConstants.SUCCESS;
+			message = MessageConstants.USER_LOGIN_SUCCESS;
+		} catch (Exception e) {
+			status = MessageConstants.FAILED;
+			message = e.getMessage();
+		}
+		return payload.buildRetunResp(new ClientRespBean(status, message, user));
 	}
 
 }
